@@ -5,6 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const users = [{ id: 1, name: "Naraa", age: 20 }];
+
 app.get("/users", (req, res) => {
   const data = fs.readFileSync("./users.json", { encoding: "utf8" });
   const obData = JSON.parse(data);
@@ -18,15 +19,14 @@ app.get("/users", (req, res) => {
 
 app.post("/users", (req, res) => {
   const data = fs.readFileSync("./users.json", { encoding: "utf8" });
-  const { users } = JSON.parse(data);
+  const { employees } = JSON.parse(data);
   console.log("Body", req.body);
   const newUsers = {
-    id: `${users.length + 1}`,
-    name: req.body.name,
-    age: req.body.age,
+    eid: `${employees.length + 1}`,
+    ...req.body,
   };
-  users.push(newUsers);
-  fs.writeFileSync("./users.json", JSON.stringify({ users }));
+  employees.push(newUsers);
+  fs.writeFileSync("./users.json", JSON.stringify({ employees }));
   res.status(201).json({ user: newUsers });
 });
 
@@ -34,13 +34,13 @@ app.put("/users/:userId", (req, res) => {
   console.log(req.params);
   console.log(req.body);
   const data = fs.readFileSync("./users.json", { encoding: "utf8" });
-  const { users } = JSON.parse(data);
-  const findIndex = users.findIndex(
-    (user) => user.id === parseInt(req.params.userId)
-  );
+  const { employees } = JSON.parse(data);
+  const findIndex = employees.findIndex((user) => {
+    return user.eid === req.params.id;
+  });
   if (findIndex > -1) {
     users[findIndex].name = req.body.name;
-    fs.writeFileSync("./users.json", JSON.stringify({ users }));
+    fs.writeFileSync("./users.json", JSON.stringify({ employees }));
 
     res.status(200).json({ user: users[findIndex] });
   } else {
@@ -49,14 +49,15 @@ app.put("/users/:userId", (req, res) => {
 });
 
 app.delete("/users/:id", (req, res) => {
+  console.log("delete", req.params.id);
   const data = fs.readFileSync("./users.json", { encoding: "utf8" });
-  const { users } = JSON.parse(data);
-  const findIndex = users.findIndex(
-    (user) => user.id === parseInt(req.params.id)
-  );
+  const { employees } = JSON.parse(data);
+  const findIndex = employees.findIndex((user) => {
+    return user.eid === req.params.id;
+  });
   if (findIndex > -1) {
-    const deletedUser = users.splice(findIndex, 1);
-    fs.writeFileSync("./users.json", JSON.stringify({ users }));
+    const deletedUser = employees.splice(findIndex, 1);
+    fs.writeFileSync("./users.json", JSON.stringify({ employees }));
     res.status(200).json({ user: deletedUser[0] });
   } else {
     res.status(400).json({ message: "Not found user id" });
