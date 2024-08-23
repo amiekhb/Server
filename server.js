@@ -30,7 +30,7 @@ app.post("/users", (req, res) => {
   res.status(201).json({ user: newUsers });
 });
 
-app.put("/users/:userId", (req, res) => {
+app.put("/users/:id", (req, res) => {
   console.log(req.params);
   console.log(req.body);
   const data = fs.readFileSync("./users.json", { encoding: "utf8" });
@@ -39,10 +39,10 @@ app.put("/users/:userId", (req, res) => {
     return user.eid === req.params.id;
   });
   if (findIndex > -1) {
-    users[findIndex].name = req.body.name;
+    employees[findIndex] = { ...employees[findIndex], ...req.body };
     fs.writeFileSync("./users.json", JSON.stringify({ employees }));
 
-    res.status(200).json({ user: users[findIndex] });
+    res.status(200).json({ user: employees[findIndex] });
   } else {
     res.status(400).json({ message: "Not found user id" });
   }
